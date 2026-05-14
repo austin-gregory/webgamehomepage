@@ -26,6 +26,9 @@ jobs:
         run: |
           npm ci
           npm run build
+          # SWA reads its config from the uploaded artifacts root (out/),
+          # not the repo root, so copy it into the build output.
+          cp staticwebapp.config.json out/
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -33,10 +36,13 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ZEALOUS_GRASS_0785FE40F }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
+          # We pre-build with `npm run build` above (skip_app_build), so the
+          # deploy action just uploads what's already in /out. With
+          # skip_app_build=true, output_location is ignored — point
+          # app_location directly at the build artifacts.
           skip_app_build: true
-          app_location: "/"
+          app_location: "out"
           api_location: ""
-          output_location: "out"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

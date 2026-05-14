@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Gamepad2, Swords, Dices } from "lucide-react";
+import { Gamepad2, Swords, Dices, Mountain } from "lucide-react";
 
 type Game = {
   slug: string;
@@ -39,6 +39,18 @@ const GAMES: Game[] = [
     icon: <Gamepad2 className="h-5 w-5" />,
     accent: "from-emerald-500/40 to-zinc-800/10",
     url: "https://beasthunter-e3g4aahtdfbkg5a3.canadacentral-01.azurewebsites.net/",
+  },
+  {
+    slug: "arcane_climbers",
+    title: "ARCANE CLIMBERS",
+    tag: "vertical platformer",
+    blurb:
+      "Scale the tower. Spell your way up. A magic-fueled climbing prototype where every reach is a small risk.",
+    status: "prototype",
+    stack: ["Phaser 3", "Node", "Azure"],
+    icon: <Mountain className="h-5 w-5" />,
+    accent: "from-violet-500/40 to-indigo-900/10",
+    url: "https://arcaneclimbers-fhgge6c8cmarfaax.canadacentral-01.azurewebsites.net/",
   },
   {
     slug: "tenzi",
@@ -87,7 +99,7 @@ export function GamesShowcase() {
           Click in.
         </p>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {GAMES.map((g, i) => {
             const cardProps = {
               initial: { opacity: 0, y: 30 },
