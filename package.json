@@ -1,0 +1,36 @@
+{
+  "name": "darkgamefactory-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "npm run gen:assets && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "gen:assets": "node scripts/gen-assets.mjs",
+    "gen:hero": "npx -y @gltf-transform/cli@latest optimize assets/source/Meshy_AI_Dark_Game_Factory_0513233912_texture.glb public/hero.glb --texture-compress webp --texture-size 1024 --simplify-error 0.01"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.11.17",
+    "gsap": "^3.12.5",
+    "lucide-react": "^0.469.0",
+    "next": "14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.5",
+    "three": "^0.184.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.9",
+    "@types/react": "^18.3.13",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "sharp": "^0.34.5",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+.env*.local
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# Heavy source 3D models — only the optimized /public/hero.glb gets deployed
+assets/source/*.glb
+
+# Windows/WSL alternate-data-stream metadata files
+*:Zone.Identifier
+

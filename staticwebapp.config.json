@@ -1,0 +1,22 @@
+{
+  "routes": [
+    {
+      "route": "/hero.glb",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "route": "/_next/static/*",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "route": "/og-image.png",
+      "headers": {
+        "cache-control": "public, max-age=2592000"
+      }
+    }
+  ]
+}
