@@ -171,9 +171,23 @@ function CameraRig({
 
 export function HeroRoom({ onEnter }: { onEnter: () => void }) {
   const [close, setClose] = useState(false);
+  // Detect coarse-pointer devices so we can swap the keyboard HUD for
+  // on-screen touch buttons. CameraRig's keyboard listener is the only
+  // input pipeline — touch buttons dispatch synthetic KeyboardEvents so
+  // both inputs converge with no special-casing in the rig.
+  const [isTouch, setIsTouch] = useState(false);
   // Shared target Vector3 — PCModel mutates target.y once it has measured
   // the model's bbox; CameraRig reads it every frame for lookAt.
   const target = useMemo(() => new Vector3(0, 0.9, 0), []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(pointer: coarse)");
+    setIsTouch(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsTouch(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   const handleClick = () => {
     if (close) onEnter();
@@ -240,7 +254,7 @@ export function HeroRoom({ onEnter }: { onEnter: () => void }) {
         <CameraRig target={target} onProximity={setClose} />
       </Canvas>
 
-      <ControlsPanel />
+      {isTouch ? <TouchControls /> : <ControlsPanel />}
 
       {/* "Enter" prompt — only when within interaction range */}
       <div
@@ -248,7 +262,7 @@ export function HeroRoom({ onEnter }: { onEnter: () => void }) {
           close ? "opacity-100" : "opacity-0"
         }`}
       >
-        ▸ CLICK TO ENTER ◂
+        {isTouch ? "▸ TAP TO ENTER ◂" : "▸ CLICK TO ENTER ◂"}
       </div>
 
       {/* CRT scanlines over everything */}
@@ -294,5 +308,77 @@ function KeyRow({ keys, desc }: { keys: string[]; desc: string }) {
       </div>
       <span className="text-phosphor/70">{desc}</span>
     </div>
+  );
+}
+
+// On touch devices, replace the keyboard HUD with thumb-reachable buttons.
+// Each button dispatches synthetic keydown/keyup so the same listener in
+// CameraRig drives the camera — no parallel input plumbing required.
+function TouchControls() {
+  const dispatch = (key: string, down: boolean) => {
+    window.dispatchEvent(
+      new KeyboardEvent(down ? "keydown" : "keyup", { key })
+    );
+  };
+
+  return (
+    <>
+      {/* Orbit pair — bottom-left, side by side (left-thumb reach) */}
+      <div
+        className="absolute bottom-8 left-6 z-20 flex gap-3"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <TouchButton glyph="◀" onDown={() => dispatch("a", true)} onUp={() => dispatch("a", false)} />
+        <TouchButton glyph="▶" onDown={() => dispatch("d", true)} onUp={() => dispatch("d", false)} />
+      </div>
+
+      {/* Approach pair — bottom-right, stacked (right-thumb reach) */}
+      <div
+        className="absolute bottom-8 right-6 z-20 flex flex-col gap-3"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <TouchButton glyph="▲" onDown={() => dispatch("w", true)} onUp={() => dispatch("w", false)} />
+        <TouchButton glyph="▼" onDown={() => dispatch("s", true)} onUp={() => dispatch("s", false)} />
+      </div>
+
+      {/* Small caption so first-timers know what the buttons do */}
+      <div className="pointer-events-none absolute bottom-2 left-1/2 z-20 -translate-x-1/2 font-mono text-[9px] tracking-[0.3em] text-phosphor/60">
+        ORBIT · APPROACH
+      </div>
+    </>
+  );
+}
+
+function TouchButton({
+  glyph,
+  onDown,
+  onUp,
+}: {
+  glyph: string;
+  onDown: () => void;
+  onUp: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        (e.currentTarget as HTMLButtonElement).setPointerCapture(e.pointerId);
+        onDown();
+      }}
+      onPointerUp={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onUp();
+      }}
+      onPointerCancel={() => onUp()}
+      onPointerLeave={() => onUp()}
+      onClick={(e) => e.stopPropagation()}
+      className="flex h-14 w-14 items-center justify-center rounded-sm border border-phosphor-dim/60 bg-black/70 font-mono text-2xl text-phosphor text-glow-green backdrop-blur active:border-phosphor active:bg-phosphor/15"
+      style={{ boxShadow: "0 0 12px rgba(0,255,65,0.2)", touchAction: "none" }}
+    >
+      {glyph}
+    </button>
   );
 }
