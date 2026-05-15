@@ -62,6 +62,7 @@ const GAMES: Game[] = [
     stack: ["React", "Node", "localStorage"],
     icon: <Dices className="h-5 w-5" />,
     accent: "from-rose-500/40 to-purple-800/10",
+    url: "https://tenzi.darkgamefactory.com",
   },
 ];
 
