@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "gen:assets": "node scripts/gen-assets.mjs",
-    "gen:hero": "npx -y @gltf-transform/cli@latest optimize assets/source/Meshy_AI_Dark_Game_Factory_0513233912_texture.glb public/hero.glb --texture-compress webp --texture-size 1024 --simplify-error 0.01"
+    "gen:hero": "npx -y @gltf-transform/cli@latest optimize assets/source/Meshy_AI_Dark_Game_Factory_0513233912_texture.glb public/hero.glb --texture-compress webp --texture-size 2048 --simplify-error 0.01"
   },
   "dependencies": {
     "@react-three/drei": "^9.122.0",

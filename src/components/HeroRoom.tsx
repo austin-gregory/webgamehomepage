@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { Box3, Group, Vector3 } from "three";
+import { Box3, Group, Mesh, MeshStandardMaterial, Vector3 } from "three";
 
 useGLTF.preload("/hero.glb", false, true);
 
@@ -18,11 +18,13 @@ const ORBIT_SPEED = 1.3; // rad/s around PC
 
 function PCModel({ target }: { target: Vector3 }) {
   const { scene } = useGLTF("/hero.glb", false, true);
+  const { gl } = useThree();
   const ref = useRef<Group>(null);
 
-  // Measure the model's natural bbox once on load, then offset our wrapper
-  // so the model is X/Z-centered and its bottom rests at y=0. Also point
-  // the shared camera target at the model's mid-height.
+  // One-time setup: bbox-position the model and crank anisotropy on every
+  // texture so they stay sharp at the oblique angles the orbit-cam spends
+  // most of its time at. Default anisotropy of 1 makes textures look smeary
+  // when the camera isn't head-on.
   useEffect(() => {
     if (!ref.current) return;
     const box = new Box3().setFromObject(scene);
@@ -32,7 +34,29 @@ function PCModel({ target }: { target: Vector3 }) {
     box.getCenter(center);
     ref.current.position.set(-center.x, -box.min.y, -center.z);
     target.y = size.y * 0.5;
-  }, [scene, target]);
+
+    const maxAniso = gl.capabilities.getMaxAnisotropy();
+    const textureSlots: (keyof MeshStandardMaterial)[] = [
+      "map",
+      "normalMap",
+      "roughnessMap",
+      "metalnessMap",
+      "emissiveMap",
+      "aoMap",
+    ];
+    scene.traverse((obj) => {
+      if (!(obj instanceof Mesh)) return;
+      const material = obj.material as MeshStandardMaterial | undefined;
+      if (!material) return;
+      for (const slot of textureSlots) {
+        const tex = material[slot] as { anisotropy?: number; needsUpdate?: boolean } | null | undefined;
+        if (tex && typeof tex.anisotropy === "number") {
+          tex.anisotropy = maxAniso;
+          tex.needsUpdate = true;
+        }
+      }
+    });
+  }, [scene, target, gl]);
 
   return (
     <group ref={ref}>
@@ -258,7 +282,7 @@ export function HeroRoom({ onEnter }: { onEnter: () => void }) {
 
       {/* "Enter" prompt — only when within interaction range */}
       <div
-        className={`pointer-events-none absolute left-1/2 top-[58%] -translate-x-1/2 font-mono text-sm tracking-[0.4em] text-phosphor text-glow-green transition-opacity duration-300 ${
+        className={`pointer-events-none absolute left-1/2 top-[70%] -translate-x-1/2 font-mono text-sm tracking-[0.4em] text-phosphor text-glow-green transition-opacity duration-300 ${
           close ? "opacity-100" : "opacity-0"
         }`}
       >
