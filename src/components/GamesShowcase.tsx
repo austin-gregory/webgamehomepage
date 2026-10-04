@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Gamepad2, Swords, Dices, Mountain } from "lucide-react";
+import { Gamepad2, Swords, Dices, Mountain, Rocket } from "lucide-react";
 
 type Game = {
   slug: string;
@@ -63,6 +63,19 @@ const GAMES: Game[] = [
     icon: <Dices className="h-5 w-5" />,
     accent: "from-rose-500/40 to-purple-800/10",
     url: "https://tenzi.darkgamefactory.com",
+  },
+  {
+    slug: "astro_brawl",
+    title: "ASTRO BRAWL",
+    tag: "3d fighter",
+    blurb:
+      "Spaceman vs. spaceman on a lunar arena. Combos, knockdowns, a super meter and a CPU that fights back. Built from a single prompt.",
+    status: "one-shot",
+    stack: ["three.js", "Vite", "Meshy AI"],
+    icon: <Rocket className="h-5 w-5" />,
+    accent: "from-cyan-500/40 to-pink-700/10",
+    // TODO: set once the Azure Static Web App is live (card shows NO SIGNAL until then)
+    // url: "https://<name>.azurestaticapps.net",
   },
 ];
 
